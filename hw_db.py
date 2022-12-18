@@ -86,13 +86,12 @@ def delete_client(cur, client_id):
     delete_phone(cur, None, client_id)
 
 
-def find_client(cur, first_name=None, last_name=None, email=None, phone=None):
-    cur.execute("""
-        SELECT c*, cp.phones FROM clients c
-        JOIN clients_phones ON c.id = cp.id_client
-        WHERE id=%s;
-        """, ())
-    delete_phone(cur, None, )
+def search_client(cur, **data):
+    query = "SELECT first_name, last_name, email, cp.phones FROM clients c \
+        JOIN clients_phones cp ON c.id  = cp.id_client \
+        WHERE " + ' and '.join(f"{k} like '{v}'" for k,v in data.items())
+    cur.execute(query)
+    return cur.fetchall()
 
 
 with psycopg2.connect(database="clients_db", user="postgres", password="1234") as conn:
@@ -103,8 +102,10 @@ with psycopg2.connect(database="clients_db", user="postgres", password="1234") a
         add_phone(cur, '1', '+78889999999')
         change_client(cur,1)
         delete_phone(cur, '+78889999999')
-        
+        # find_client(cur, first_name='Ivan')
+        client = search_client(cur, first_name='Ivan', phones='+79999999999')
+        print(client)
         conn.commit()
 
 
-# conn.close()
+conn.close()
