@@ -5,6 +5,7 @@ def drop_table(cur, *table):
     for t in table:
         cur.execute(f"DROP TABLE {t}")
 
+
 def create_db(cur):
     cur.execute("""
                 CREATE TABLE IF NOT EXISTS clients(
@@ -72,7 +73,6 @@ def change_client(cur, id_client, first_name=None, last_name=None, email=None, p
                 """, (first_name, id_client))
 
 
-
 def delete_phone(cur, phone=None, client_id=None):
     cur.execute("""
         DELETE FROM clients_phones WHERE id=%s or phones=%s;
@@ -89,7 +89,7 @@ def delete_client(cur, client_id):
 def search_client(cur, **data):
     query = "SELECT first_name, last_name, email, cp.phones FROM clients c \
         JOIN clients_phones cp ON c.id  = cp.id_client \
-        WHERE " + ' and '.join(f"{k} like '{v}'" for k,v in data.items())
+        WHERE " + ' and '.join(f"{k} like '{v}'" for k, v in data.items())
     cur.execute(query)
     return cur.fetchall()
 
@@ -98,9 +98,9 @@ with psycopg2.connect(database="clients_db", user="postgres", password="1234") a
     with conn.cursor() as cur:
         drop_table(cur, 'clients_phones', 'clients')
         create_db(cur)
-        add_client(cur, 'Ivan','Ivanov','iban@ng.ru', '+79999999999')
+        add_client(cur, 'Ivan', 'Ivanov', 'iban@ng.ru', '+79999999999')
         add_phone(cur, '1', '+78889999999')
-        change_client(cur,1)
+        change_client(cur, 1)
         delete_phone(cur, '+78889999999')
         # find_client(cur, first_name='Ivan')
         client = search_client(cur, first_name='Ivan', phones='+79999999999')
