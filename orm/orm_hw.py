@@ -42,7 +42,7 @@ def find_publisher(session, data_find):
 if __name__ == '__main__':
     create_tables(engine)
     add_data(session)
-    data_find = input('Введите id или имя издателя: ')
+    data_find = input('Введите имя издателя: ')
     res = find_publisher(session, data_find)
     print(*res)
 
