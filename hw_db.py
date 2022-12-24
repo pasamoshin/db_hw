@@ -86,26 +86,37 @@ def delete_client(cur, client_id):
     delete_phone(cur, None, client_id)
 
 
-def search_client(cur, **data):
-    query = "SELECT first_name, last_name, email, cp.phones FROM clients c \
-        JOIN clients_phones cp ON c.id  = cp.id_client \
-        WHERE " + ' and '.join(f"{k} like '{v}'" for k, v in data.items())
+def search_client(cur, first_name=None, last_name=None, email=None, phone=None):
+    data = {}
+    if first_name:
+        data['first_name'] = first_name
+    if last_name:
+        data['last_name'] = last_name
+    if email:
+        data['email'] = email
+    if phone:
+        data['phones'] = phone
+
+    query = """SELECT first_name, last_name, email, cp.phones FROM clients c 
+        JOIN clients_phones cp ON c.id  = cp.id_client 
+        WHERE """ + ' and '.join(f"{k} like '{v}'" for k, v in data.items())
     cur.execute(query)
     return cur.fetchall()
 
 
-with psycopg2.connect(database="clients_db", user="postgres", password="1234") as conn:
-    with conn.cursor() as cur:
-        drop_table(cur, 'clients_phones', 'clients')
-        create_db(cur)
-        add_client(cur, 'Ivan', 'Ivanov', 'iban@ng.ru', '+79999999999')
-        add_phone(cur, '1', '+78889999999')
-        change_client(cur, 1)
-        delete_phone(cur, '+78889999999')
-        # find_client(cur, first_name='Ivan')
-        client = search_client(cur, first_name='Ivan', phones='+79999999999')
-        print(client)
-        conn.commit()
+if __name__ == '__main__':
+    with psycopg2.connect(database="clients_db", user="postgres", password="1234") as conn:
+        with conn.cursor() as cur:
+            drop_table(cur, 'clients_phones', 'clients')
+            create_db(cur)
+            add_client(cur, 'Ivan', 'Ivanov', 'iban@ng.ru', '+79999999999')
+            add_phone(cur, '1', '+78889999999')
+            change_client(cur, 1)
+            delete_phone(cur, '+78889999999')
+            # find_client(cur, first_name='Ivan')
+            client = search_client(cur, first_name='Ivan', phone='+79999999999 ')
+            print(client)
+            conn.commit()
 
 
 conn.close()
